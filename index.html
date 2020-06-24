@@ -3,13 +3,15 @@
     <meta charset="utf-8">
 
     <head>
-        <title> Let Us See</title>
+        <title> COVID Deaths </title>
 
         <!-- Google fonts code -->
-        <link href="https://fonts.googleapis.com/css?family=Dosis|Poppins|Abel" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Dosis|Poppins|Abel|Roboto" rel="stylesheet">
 
-        <!-- Load d3.js -->
+        <!-- Load d3.js to read csv, charts.js to make chart, jquery -->
         <script src='https://d3js.org/d3.v5.min.js' charset='utf-8'></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"> </script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         
         <!-- <script src="js/animation.js"></script> -->
@@ -18,85 +20,107 @@
     </head>
 
     <body>
-        <!-- <div class="chart"></div> -->
-        <div id="my_dataviz"></div>
+        <!-- <div id="title">How did COVID affect different races?</div> -->
+        <div id="legend">
+            <!-- <div class="item infections">Infections</div>
+            <div class="item hospitalizations">Hospitalizations</div>
+            <div class="item deaths">Deaths</div> -->
+        </div>
+        <div id="chart-wrapper">
+            <canvas id="chart" width="800" height="600"></canvas>
+        </div>
+        <div id="footer">
+            <!-- <div class="left" ><a href="https://createwithdata.com/chartjs-and-csv/" target="_blank">About</a></div>
+            <div class="right">Source: <a href="https://public.tableau.com/en-us/s/resources" target="_blank">Tableau</a> / Wikipedia</div> -->
+        </div>
+   </body>
 
-        <!-- <button>Play</button> -->
-        <!-- <button>Reverse</button> -->
+    <script type="text/javascript">
+        Chart.defaults.global.defaultFontFamily = 'Roboto';
+        Chart.defaults.global.defaultFontColor = '#333';
+        Chart.defaults.global.defaultFontStyle = 'italic';
+        // Chart.defaults.global.defaultFontSize = '24';
 
-    <!--jQuery via Google CDN -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        function makeChart(covidByRace) {
+            var raceLabels = covidByRace.map(function(d) {return d.RACE_GROUP});
+            var infectedData = covidByRace.map(function(d) {return +d.CASE_RATE_ADJ});
+            var hospitalizedData = covidByRace.map(function(d) {return +d.HOSPITALIZED_RATE_ADJ});
+            var diedData = covidByRace.map(function(d) {return +d.DEATH_RATE_ADJ});
+            // var raceColors = covidByRace.map(function(d) {return d.RACE_GROUP === 'Asian/Pacific-Islander' ? '#F15F36' : '#19A0AA';});
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+            var chart = new Chart('chart', {
+                type: 'radar',
+                options: {
+                    responsive:true,
+                    maintainAspectRatio: true,
+                    legend: {
+                        display: true,
+                        labels:{
+                            fontColor: 'black',
+                            // defaultFontFamily: 'Roboto',
+                        },
+                    },
+                    title: {
+                        display: true,
+                        text: 'How did COVID affect different races?',
+                        fontSize: 24,
+                        padding: 12,
+                    },
+                    scale: {
+                        pointLabels :{
+                            fontStyle: "bold",
+                            fontFamily:'Roboto',
+                            fontSize: '14',
+                        },
+                    },
+                    tooltips: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                return data.datasets[tooltipItem.datasetIndex].label + ' : ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            }
+                        }
+                    },
+                },
+                data: {
+                    labels: raceLabels,
+                    datasets: [
+                        {
+                            data: infectedData,
+                            label: "Infections",
+                            fill: true,
+                            backgroundColor: 'rgba(25,160,170,.3)',
+                            borderColor: 'rgba(25,160,170,1)',
+                            pointBorderColor: "#fff",
+                            pointBackgroundColor: "rgba(25,160,170,1)",
+                        }, {
+                            data: hospitalizedData,
+                            label: "Hospitalizations",
+                            backgroundColor: 'rgba(241,95,54,.3)',
+                            borderColor: 'rgba(241,95,54,1)',
+                            pointBorderColor: "#fff",
+                            pointBackgroundColor: "rgba(241,95,54,1)",
+                            // backgroundColor: playerColors
+                        }, {
+                            data: diedData,
+                            label: "Deaths",
+                            backgroundColor: 'rgba(93,3,105,.3)',
+                            borderColor: 'rgba(93,3,105,1)',
+                            pointBorderColor: "#fff",
+                            pointBackgroundColor: "rgba(93,3,105,1)",
+                            // backgroundColor: playerColors
+                        }
+                    ]
+                }
+            })
+        }
 
-  </body>
+        // Request data using D3
+        d3.csv('https://raw.githubusercontent.com/nychealth/coronavirus-data/3f21405a00bf7c93db5a5209b44886882feb30a6/by-race.csv')
+        // d3.csv('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2814973/atp_wta.csv')
+            .then(makeChart);
 
-<script type="text/javascript">
-
-
-  </script> 
-
-</html>
-
-    </body>    
-
-    <script>
-
-        // set the dimensions and margins of the graph
-        var margin = {top: 10, right: 30, bottom: 30, left: 40},
-            width = 460 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
-        
-        // append the svg object to the body of the page
-        var svg = d3.select("#my_dataviz")
-          .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-            .attr("transform",
-                  "translate(" + margin.left + "," + margin.top + ")");
-        
-        // get the data
-        d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/1_OneNum.csv", function(data) {
-        
-          // X axis: scale and draw:
-          var x = d3.scaleLinear()
-              .domain([0, 1000])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
-              .range([0, width]);
-          svg.append("g")
-              .attr("transform", "translate(0," + height + ")")
-              .call(d3.axisBottom(x));
-        
-          // set the parameters for the histogram
-          var histogram = d3.histogram()
-              .value(function(d) { return d.price; })   // I need to give the vector of value
-              .domain(x.domain())  // then the domain of the graphic
-              .thresholds(x.ticks(70)); // then the numbers of bins
-        
-          // And apply this function to data to get the bins
-          var bins = histogram(data);
-        
-          // Y axis: scale and draw:
-          var y = d3.scaleLinear()
-              .range([height, 0]);
-              y.domain([0, d3.max(bins, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
-          svg.append("g")
-              .call(d3.axisLeft(y));
-        
-          // append the bar rectangles to the svg element
-          svg.selectAll("rect")
-              .data(bins)
-              .enter()
-              .append("rect")
-                .attr("x", 1)
-                .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
-                .attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
-                .attr("height", function(d) { return height - y(d.length); })
-                .style("fill", "#69b3a2")
-        
-        });
-        </script>
+    </script> 
 
 </html>
 
