@@ -6,7 +6,7 @@
         <title> COVID Deaths </title>
 
         <!-- Google fonts code -->
-            <link href="https://fonts.googleapis.com/css?family=Dosis|Poppins|Abel|Roboto" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Noto Serif|Dosis|Poppins|Abel|Roboto" rel="stylesheet">
 
         <!-- Load d3.js to read csv, charts.js to make chart, jquery -->
         <script src='https://d3js.org/d3.v5.min.js' charset='utf-8'></script>
@@ -21,24 +21,18 @@
 
     <body>
         <!-- <div id="title">How did COVID affect different races?</div> -->
-        <div id="legend">
+        <!-- <div id="legend"> -->
             <!-- <div class="item infections">Infections</div>
             <div class="item hospitalizations">Hospitalizations</div>
             <div class="item deaths">Deaths</div> -->
-        </div>
-        <div id="chart-wrapper">
-            <canvas id="chart" width="800" height="600"></canvas>
-        </div>
-        <div id="footer">
-            <!-- <div class="left" ><a href="https://createwithdata.com/chartjs-and-csv/" target="_blank">About</a></div>
-            <div class="right">Source: <a href="https://public.tableau.com/en-us/s/resources" target="_blank">Tableau</a> / Wikipedia</div> -->
-        </div>
+        <!-- </div> -->
+        <canvas id="chart" width="800" height="400"></canvas>
    </body>
 
     <script type="text/javascript">
-        Chart.defaults.global.defaultFontFamily = 'Roboto';
+        Chart.defaults.global.defaultFontFamily = 'Noto Serif, serif';
         Chart.defaults.global.defaultFontColor = '#333';
-        Chart.defaults.global.defaultFontStyle = 'italic';
+        Chart.defaults.global.defaultFontStyle = 'normal';
         // Chart.defaults.global.defaultFontSize = '24';
 
         function makeChart(covidByRace) {
@@ -50,36 +44,74 @@
 
             var chart = new Chart('chart', {
                 type: 'radar',
+                backgroundColor: "#F5DEB3",
                 options: {
                     responsive:true,
                     maintainAspectRatio: true,
                     legend: {
                         display: true,
+                        align: 'center',
+                        // position: 'left',
                         labels:{
-                            fontColor: 'black',
-                            // defaultFontFamily: 'Roboto',
+                            fontColor: 'rgb(128, 158, 157)',
+                            fontSize: 14,
+                            padding: 5,
+                            fontStyle: 'italic',
                         },
+                        onHover: function(e) {
+                            e.target.style.cursor = 'pointer';
+                        },
+                    },
+                    hover: {
+                        onHover: function(e) {
+                            var point = this.getElementAtEvent(e);
+                            if (point.length) e.target.style.cursor = 'pointer';
+                            else e.target.style.cursor = 'default';
+                        }
                     },
                     title: {
                         display: true,
+                        align: 'center',
+                        position: 'top',
                         text: 'How did COVID affect different races?',
                         fontSize: 24,
                         padding: 12,
+                        fontColor: '#fff',
                     },
                     scale: {
+                        ticks: {
+                            backdropColor: 'black', // should render black behind the text
+                            fontColor: 'rgba(128, 158, 157, 0.7)',
+
+                        },
                         pointLabels :{
-                            fontStyle: "bold",
-                            fontFamily:'Roboto',
-                            fontSize: '14',
+                            fontStyle: "normal",
+                            // fontFamily:'Roboto',
+                            fontSize: '16',
+                            fontColor: '#fff',
+                        },
+                        gridLines: {
+                            color: 'rgba(128, 158, 157, .3)',
                         },
                     },
                     tooltips: {
                         enabled: true,
                         callbacks: {
+                            // label: function(tooltipItem, data) {
+                            //     return data.datasets[tooltipItem.datasetIndex].label + ' : ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            // },
                             label: function(tooltipItem, data) {
-                                return data.datasets[tooltipItem.datasetIndex].label + ' : ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                            }
-                        }
+                                var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                if (label) {
+                                    label += ': ';
+                                }
+
+                                label += Math.round(tooltipItem.yLabel * 100) / 100;
+                                return label;
+                                // return label + "%";
+                            },
+                        },
                     },
                 },
                 data: {
@@ -87,28 +119,32 @@
                     datasets: [
                         {
                             data: infectedData,
-                            label: "Infections",
+                            label: "Infection Rate",
                             fill: true,
-                            backgroundColor: 'rgba(25,160,170,.3)',
+                            backgroundColor: 'rgba(25,160,170,.2)',
                             borderColor: 'rgba(25,160,170,1)',
-                            pointBorderColor: "#fff",
+                            pointBorderColor: "rgba(255, 255, 255, 0.8)",
                             pointBackgroundColor: "rgba(25,160,170,1)",
+                            pointHoverRadius: 10,
+                            pointRadius: 4,
                         }, {
                             data: hospitalizedData,
-                            label: "Hospitalizations",
-                            backgroundColor: 'rgba(241,95,54,.3)',
+                            label: "Hospitalization Rate",
+                            backgroundColor: 'rgba(241,95,54,.2)',
                             borderColor: 'rgba(241,95,54,1)',
-                            pointBorderColor: "#fff",
+                            pointBorderColor: "rgba(255, 255, 255, 0.8)",
                             pointBackgroundColor: "rgba(241,95,54,1)",
-                            // backgroundColor: playerColors
+                            pointHoverRadius: 10,
+                            pointRadius: 4,
                         }, {
                             data: diedData,
-                            label: "Deaths",
-                            backgroundColor: 'rgba(93,3,105,.3)',
-                            borderColor: 'rgba(93,3,105,1)',
-                            pointBorderColor: "#fff",
-                            pointBackgroundColor: "rgba(93,3,105,1)",
-                            // backgroundColor: playerColors
+                            label: "Death Rate",
+                            backgroundColor: 'rgba(255,255,0,.2)',
+                            borderColor: 'rgba(255,255,0,1)',
+                            pointBorderColor: "rgba(255, 255, 255, 0.8)",
+                            pointBackgroundColor: "rgba(255,255,0,1)",
+                            pointHoverRadius: 10,
+                            pointRadius: 4,
                         }
                     ]
                 }
@@ -117,7 +153,6 @@
 
         // Request data using D3
         d3.csv('https://raw.githubusercontent.com/nychealth/coronavirus-data/3f21405a00bf7c93db5a5209b44886882feb30a6/by-race.csv')
-        // d3.csv('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2814973/atp_wta.csv')
             .then(makeChart);
 
     </script> 

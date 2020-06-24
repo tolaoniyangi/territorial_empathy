@@ -1,7 +1,7 @@
 body {
-  font-family: 'Roboto';
-  color: #333;
-  background-color: #F9F7EB;
+  font-family: "Noto Serif", serif;
+  color: #fff;
+  background-color: #000;
 }
 
 #title {
@@ -10,7 +10,7 @@ body {
   padding: 10;
   font-size: 28px;
   letter-spacing: -0.01em;
-  color: #333;
+  color: #fff;
 }
 
 #legend {
@@ -39,16 +39,4 @@ body {
 
 #chart-wrapper {
   height: 1000px;
-}
-
-#footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 10px;
-  color: #aaa;
-  font-size: 12px;
-}
-
-#footer a {
-  color: #aaa;
 }
